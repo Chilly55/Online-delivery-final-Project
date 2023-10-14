@@ -30,13 +30,15 @@ class Order(View):
         return render(request, 'customer/order.html', context)
     
     def post(self, request, *args, **kwards):
+        name = request.POST.get('name')
+        email = request.POST.get('email')
         order_items = {
             'items':[]
         }
         items = request.POST.getlist('items[]')
 
         for item in items:
-            menu_item = MenuItem.objects.get(pk__contains=int(item))
+            menu_item = MenuItem.objects.get(pk=int(item))
             item_data = {
                 'id': menu_item.pk,
                 'name': menu_item.name,
@@ -53,7 +55,11 @@ class Order(View):
             item_ids.append(item['id'])
             price += item['price'] #adds items price to the total
 
-        order = OrderModel.objects.create(price=price)
+        order = OrderModel.objects.create(
+            price=price,
+            name=name,
+            email=email
+        )
         order.items.add(*item_ids)
 
         context = {
